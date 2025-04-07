@@ -1,0 +1,126 @@
+/* Container */
+.text-editor-container {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 700px;
+  margin: 0 auto;
+  gap: 1rem;
+}
+
+/* Title */
+.title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+/* Editable Content Area */
+.editable-content {
+  border: 1px solid #ccc;
+  padding: 1rem;
+  width: 100%;
+  border-radius: 0.5rem;
+  font-size: 1.125rem;
+  min-height: 6.25rem;
+  cursor: text;
+  outline: none;
+}
+
+/* Dropdown Selectors and Inputs */
+.dropdown,
+.font-input-wrapper input {
+  width: 100%;
+  max-width: 300px;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+}
+
+/* Font Input + Suggestions */
+.font-input-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 300px;
+}
+
+.suggestions {
+  list-style: none;
+  position: absolute;
+  top: 105%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #ccc;
+  max-height: 150px;
+  overflow-y: auto;
+  z-index: 10;
+  padding: 0;
+  margin: 0;
+}
+
+.suggestions li {
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.suggestions li:hover {
+  background-color: #f0f0f0;
+}
+
+/* Style Toggles */
+.style-toggles {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 300px;
+}
+
+.toggle-button {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  background-color: #ccc;
+  cursor: pointer;
+  border: none;
+  font-weight: bold;
+  flex: 1 1 30%;
+  text-align: center;
+}
+
+.toggle-button.active {
+  background-color: #555;
+  color: white;
+}
+
+/* Apply Button */
+.apply-button {
+  padding: 0.5rem 1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  width: 100%;
+  max-width: 300px;
+}
+
+.apply-button:hover {
+  background-color: #0056b3;
+}
+
+/* Styled Text */
+.styled-text.bold {
+  font-weight: bold;
+}
+
+.styled-text.italic {
+  font-style: italic;
+}
+
+.styled-text.underline {
+  text-decoration: underline;
+}

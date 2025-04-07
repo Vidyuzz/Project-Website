@@ -1,0 +1,40 @@
+.App1{
+    height: 100%;
+    width: 100%;
+    display: flex;
+}
+.Logo{
+    width: 40%;
+
+}
+.Nav{
+    width: 60%;
+    text-align: right;
+    font-size: 33px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-left: 0px;
+    padding-right: 5px;
+    padding-top: 5px;
+    text-decoration: none;
+    color: black;
+    list-style-type: none;
+    gap: 120px;
+    font-family: 'Average Sans';
+    
+}
+.h{
+    text-decoration: none;
+    color: black;
+}
+.h:hover{
+    color: burlywood;
+    transition: 0.5s;
+}
+.a{
+    padding-top: 20px;
+    padding-left: 90px;
+    width: 200px;
+    height: 75px;
+}
