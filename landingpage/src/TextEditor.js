@@ -1,18 +1,16 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import WebFont from "webfontloader";
-import ColorWheel from "./ColorWheel";
+import { HexColorPicker } from "react-colorful";
 import "./TextEditor.css";
 
 const TextEditor = () => {
+  const editorRef = useRef(null);
   const [selectedColor, setSelectedColor] = useState("#000000");
   const [selectedFont, setSelectedFont] = useState("Arial");
-  const [selectedFontSize, setSelectedFontSize] = useState("16px");
-  const [isBold, setIsBold] = useState(false);
-  const [isItalic, setIsItalic] = useState(false);
-  const [isUnderline, setIsUnderline] = useState(false);
+  const [selectedFontSize, setSelectedFontSize] = useState(16); // Start with default font size
   const [fontSuggestions, setFontSuggestions] = useState([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const editorRef = useRef(null);
+  const [imageSrc, setImageSrc] = useState(null);
+  const [footnotes, setFootnotes] = useState([]);
 
   useEffect(() => {
     const fetchFonts = async () => {
@@ -22,187 +20,170 @@ const TextEditor = () => {
         );
         const data = await res.json();
         const fontNames = data.items.map((item) => item.family);
-        setFontSuggestions(fontNames);
-      } catch (error) {
-        console.error("Failed to load fonts", error);
+        setFontSuggestions(fontNames.slice(0, 100));
+      } catch (err) {
+        console.error("Failed to load fonts", err);
       }
     };
-
     fetchFonts();
   }, []);
 
-  const filteredFonts = fontSuggestions.filter((font) =>
-    font.toLowerCase().includes(selectedFont.toLowerCase())
-  );
-
-  const loadFont = (fontName) => {
-    WebFont.load({
-      google: {
-        families: [fontName],
-      },
-    });
-  };
-
-  const handleFontChange = (e) => {
-    const font = e.target.value;
-    setSelectedFont(font);
-    setShowSuggestions(true);
-  };
-
-  const handleFontSelect = (font) => {
-    setSelectedFont(font);
-    loadFont(font);
-    setShowSuggestions(false);
-  };
-
-  const handleSizeChange = (e) => {
-    setSelectedFontSize(`${e.target.value}px`);
-  };
-
-  const handleColorChange = (color) => {
-    setSelectedColor(color.hex);
-  };
-
-  const toggleBold = () => {
-    setIsBold(!isBold);
-  };
-
-  const toggleItalic = () => {
-    setIsItalic(!isItalic);
-  };
-
-  const toggleUnderline = () => {
-    setIsUnderline(!isUnderline);
-  };
-
-  const resetEditor = () => {
-    if (editorRef.current) {
-      editorRef.current.innerHTML = "";
+  useEffect(() => {
+    if (selectedFont) {
+      WebFont.load({
+        google: { families: [selectedFont] },
+      });
     }
+  }, [selectedFont]);
 
-    setSelectedFont("Arial");
-    setSelectedFontSize("16px");
-    setSelectedColor("#000000");
-    setIsBold(false);
-    setIsItalic(false);
-    setIsUnderline(false);
-  };
-
-  const applyStyleToSelection = () => {
+  const applyStyle = () => {
     const selection = window.getSelection();
-    if (!selection.rangeCount || selection.isCollapsed) return;
+    if (!selection.rangeCount) return;
 
     const range = selection.getRangeAt(0);
-    const contents = range.extractContents();
-
     const span = document.createElement("span");
-    span.textContent = contents.textContent;
-
     span.style.color = selectedColor;
     span.style.fontFamily = selectedFont;
-    span.style.fontSize = selectedFontSize;
-    span.style.fontWeight = isBold ? "bold" : "normal";
-    span.style.fontStyle = isItalic ? "italic" : "normal";
-    span.style.textDecoration = isUnderline ? "underline" : "none";
+    span.style.fontSize = `${selectedFontSize}px`;
+    span.innerHTML = range.toString();
 
+    range.deleteContents();
     range.insertNode(span);
+  };
 
-    selection.removeAllRanges();
-    const newRange = document.createRange();
-    newRange.setStartAfter(span);
-    selection.addRange(newRange);
+  const exec = (command) => document.execCommand(command, false, null);
+
+  const addFootnote = () => {
+    const note = prompt("Enter footnote text:");
+    if (!note) return;
+    const index = footnotes.length + 1;
+
+    const sup = document.createElement("sup");
+    sup.innerText = `[${index}]`;
+    sup.contentEditable = "false";
+    sup.className = "footnote-inline";
+
+    const selection = window.getSelection();
+    if (selection.rangeCount) {
+      const range = selection.getRangeAt(0);
+      range.collapse(false);
+      range.insertNode(sup);
+    }
+
+    setFootnotes((prev) => [...prev, note]);
+  };
+
+  const handleGenerate = async () => {
+    //const content = editorRef.current.innerHTML;
+    const jsonOps = [];
+    const walker = document.createTreeWalker(editorRef.current, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT);
+
+    while (walker.nextNode()) {
+      const node = walker.currentNode;
+      if (node.nodeType === 3) {
+        const parent = node.parentElement;
+        const style = window.getComputedStyle(parent);
+        const attributes = {};
+
+        if (style.color) attributes.color = style.color;
+        if (style.fontFamily) attributes.font = style.fontFamily;
+        if (style.fontSize) attributes.size = style.fontSize;
+        if (style.fontWeight === "700") attributes.bold = true;
+        if (style.fontStyle === "italic") attributes.italic = true;
+        if (style.textDecoration.includes("underline")) attributes.underline = true;
+
+        jsonOps.push({ insert: node.nodeValue, attributes });
+      }
+    }
+
+    const payload = { data: [JSON.stringify({ ops: jsonOps })] };
+
+    try {
+      const res = await fetch("http://localhost:7860/api/predict", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await res.json();
+      const image = result.data?.[0];
+      if (image?.startsWith("data:image")) {
+        setImageSrc(image);
+      } else {
+        console.error("Invalid image response", image);
+      }
+    } catch (err) {
+      console.error("Error generating image:", err);
+    }
   };
 
   return (
     <div className="text-editor-container">
       <h1 className="title">Multi-Style Text Editor</h1>
 
+      <div className="toolbar">
+        <select value={selectedFont} onChange={(e) => setSelectedFont(e.target.value)}>
+          {fontSuggestions.map((font) => (
+            <option key={font} value={font} style={{ fontFamily: font }}>
+              {font}
+            </option>
+          ))}
+        </select>
+
+        <input
+          type="number"
+          value={selectedFontSize}
+          onChange={(e) => setSelectedFontSize(parseInt(e.target.value))}
+          min="1"
+        />
+
+        <HexColorPicker color={selectedColor} onChange={setSelectedColor} />
+
+        <div className="format-buttons">
+          <button onClick={() => exec("bold")}><b>B</b></button>
+          <button onClick={() => exec("italic")}><i>I</i></button>
+          <button onClick={() => exec("underline")}><u>U</u></button>
+        </div>
+
+        <button className="apply-button" onClick={applyStyle}>Apply Style</button>
+        <button className="apply-button" onClick={addFootnote}>Add Footnote</button>
+        <button className="apply-button" onClick={handleGenerate}>Generate</button>
+      </div>
+
       <div
         ref={editorRef}
-        contentEditable
-        suppressContentEditableWarning
         className="editable-content"
+        contentEditable
+        suppressContentEditableWarning={true}
         style={{ fontFamily: selectedFont }}
       ></div>
 
-      <div className="font-input-wrapper">
-        <input
-          type="text"
-          value={selectedFont}
-          onChange={handleFontChange}
-          onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-          placeholder="Search Fonts"
-          style={{ fontFamily: selectedFont }}
-          className="dropdown"
-        />
-        {showSuggestions && filteredFonts.length > 0 && (
-          <ul className="suggestions">
-            {filteredFonts.slice(0, 10).map((font, index) => (
-              <li
-                key={index}
-                onClick={() => handleFontSelect(font)}
-                style={{ fontFamily: font }}
-              >
-                {font}
+      {footnotes.length > 0 && (
+        <div className="footnote-section">
+          <h3>Footnotes:</h3>
+          <ol>
+            {footnotes.map((f, i) => (
+              <li key={i}>
+                {f}
+                <button className="delete-note" onClick={() => {
+                  const newList = [...footnotes];
+                  newList.splice(i, 1);
+                  setFootnotes(newList);
+                }}>
+                  ✖
+                </button>
               </li>
             ))}
-          </ul>
-        )}
-      </div>
+          </ol>
+        </div>
+      )}
 
-      <input
-        type="number"
-        min="8"
-        max="100"
-        value={parseInt(selectedFontSize)}
-        onChange={handleSizeChange}
-        className="dropdown"
-        placeholder="Font size (px)"
-      />
-
-      <div className="style-toggles">
-        <button
-          onClick={toggleBold}
-          className={`toggle-button ${isBold ? "active" : ""}`}
-        >
-          B
-        </button>
-        <button
-          onClick={toggleItalic}
-          className={`toggle-button ${isItalic ? "active" : ""}`}
-        >
-          I
-        </button>
-        <button
-          onClick={toggleUnderline}
-          className={`toggle-button ${isUnderline ? "active" : ""}`}
-        >
-          U
-        </button>
-      </div>
-
-      <ColorWheel
-        selectedColor={selectedColor}
-        onChangeComplete={handleColorChange}
-      />
-
-      <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
-        <button
-          onClick={applyStyleToSelection}
-          className="apply-button"
-          style={{ backgroundColor: "#007bff" }}
-        >
-          Apply Style
-        </button>
-
-        <button
-          onClick={resetEditor}
-          className="apply-button"
-          style={{ backgroundColor: "#dc3545" }}
-        >
-          Reset Editor
-        </button>
-      </div>
+      {imageSrc && (
+        <div className="image-output">
+          <h3>Generated Image:</h3>
+          <img src={imageSrc} alt="Output" />
+        </div>
+      )}
     </div>
   );
 };

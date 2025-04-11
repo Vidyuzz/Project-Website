@@ -1,3 +1,4 @@
+// src/Slideshow.js
 import React, { useState, useEffect } from 'react';
 import './Slideshow.css';
 
@@ -29,13 +30,15 @@ const Slideshow = ({ slides = [], autoPlay = true, interval = 5000 }) => {
           style={{ backgroundImage: `url(${slide.image})` }}
         >
           <div className="slide-content">
-            <h2>{slide.title}</h2>
-            <p>{slide.description}</p>
-            {slide.cta && (
-              <a href={slide.cta.link} className="slide-btn">
-                {slide.cta.text}
-              </a>
-            )}
+            <h2>{typeof slide.title === 'string' ? slide.title : ''}</h2>
+            <p>{typeof slide.description === 'string' ? slide.description : ''}</p>
+            {slide.cta &&
+              typeof slide.cta.text === 'string' &&
+              typeof slide.cta.link === 'string' && (
+                <a href={slide.cta.link} className="slide-btn">
+                  {slide.cta.text}
+                </a>
+              )}
           </div>
         </div>
       ))}

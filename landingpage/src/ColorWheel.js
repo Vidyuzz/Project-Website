@@ -1,13 +1,13 @@
 import React from "react";
-import { ChromePicker } from "react-color";
+import { HexColorPicker } from "react-colorful";
 
 const ColorWheel = ({ selectedColor, onChangeComplete }) => {
   return (
     <div style={{ marginTop: "1rem" }}>
-      <ChromePicker
+      <HexColorPicker
         color={selectedColor}
-        onChangeComplete={onChangeComplete}
-        disableAlpha
+        onChange={onChangeComplete}
+        style={{ width: "200px", height: "200px" }}
       />
     </div>
   );

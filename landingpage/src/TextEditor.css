@@ -1,126 +1,111 @@
-/* Container */
 .text-editor-container {
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  max-width: 700px;
-  margin: 0 auto;
-  gap: 1rem;
+  max-width: 960px;
+  margin: 2rem auto;
+  font-family: sans-serif;
+  padding: 1.5rem;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  background-color: #fff;
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.06);
 }
 
-/* Title */
 .title {
+  text-align: center;
+  margin-bottom: 1.5rem;
   font-size: 1.8rem;
   font-weight: bold;
-  margin-bottom: 0.5rem;
 }
 
-/* Editable Content Area */
-.editable-content {
-  border: 1px solid #ccc;
-  padding: 1rem;
-  width: 100%;
-  border-radius: 0.5rem;
-  font-size: 1.125rem;
-  min-height: 6.25rem;
-  cursor: text;
-  outline: none;
-}
-
-/* Dropdown Selectors and Inputs */
-.dropdown,
-.font-input-wrapper input {
-  width: 100%;
-  max-width: 300px;
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 0.25rem;
-}
-
-/* Font Input + Suggestions */
-.font-input-wrapper {
-  position: relative;
-  width: 100%;
-  max-width: 300px;
-}
-
-.suggestions {
-  list-style: none;
-  position: absolute;
-  top: 105%;
-  left: 0;
-  right: 0;
-  background: white;
-  border: 1px solid #ccc;
-  max-height: 150px;
-  overflow-y: auto;
-  z-index: 10;
-  padding: 0;
-  margin: 0;
-}
-
-.suggestions li {
-  padding: 8px 12px;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-.suggestions li:hover {
-  background-color: #f0f0f0;
-}
-
-/* Style Toggles */
-.style-toggles {
+.toolbar {
   display: flex;
-  gap: 0.5rem;
-  justify-content: center;
   flex-wrap: wrap;
-  width: 100%;
-  max-width: 300px;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  align-items: center;
+  justify-content: center;
 }
 
-.toggle-button {
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  background-color: #ccc;
+.toolbar select,
+.toolbar input[type="number"] {
+  padding: 0.5rem;
+  font-size: 1rem;
+  min-width: 120px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: white;
+}
+
+.format-buttons button {
+  font-size: 1rem;
+  padding: 6px 10px;
+  margin: 0 3px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: #f9f9f9;
   cursor: pointer;
-  border: none;
-  font-weight: bold;
-  flex: 1 1 30%;
-  text-align: center;
+  transition: all 0.2s;
 }
 
-.toggle-button.active {
-  background-color: #555;
-  color: white;
+.format-buttons button:hover {
+  background: #eaeaea;
 }
 
-/* Apply Button */
 .apply-button {
   padding: 0.5rem 1rem;
+  font-size: 1rem;
   background-color: #007bff;
   color: white;
   border: none;
-  border-radius: 0.5rem;
+  border-radius: 6px;
   cursor: pointer;
-  width: 100%;
-  max-width: 300px;
+  transition: background 0.3s;
 }
 
 .apply-button:hover {
   background-color: #0056b3;
 }
 
-/* Styled Text */
-.styled-text.bold {
-  font-weight: bold;
+.editable-content {
+  border: 1px solid #ccc;
+  min-height: 240px;
+  padding: 1rem;
+  background-color: #fefefe;
+  border-radius: 8px;
+  outline: none;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
-.styled-text.italic {
-  font-style: italic;
+.image-output {
+  text-align: center;
+  margin-top: 2rem;
 }
 
-.styled-text.underline {
-  text-decoration: underline;
+.image-output img {
+  max-width: 100%;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+}
+
+.footnote-inline {
+  color: #999;
+  cursor: default;
+  margin-left: 3px;
+  font-size: 0.8rem;
+}
+
+.footnote-section {
+  margin-top: 2rem;
+}
+
+.footnote-section ol {
+  padding-left: 1.5rem;
+}
+
+.delete-note {
+  background: transparent;
+  color: red;
+  margin-left: 10px;
+  border: none;
+  cursor: pointer;
 }

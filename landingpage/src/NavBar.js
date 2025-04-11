@@ -13,7 +13,7 @@ const Navbar = () => {
         <div className="nav-logo">GVM</div>
 
         <nav className={`nav-menu ${isOpen ? 'active' : ''}`}>
-          <Link to="./ParentComponent">Home</Link>  
+          <Link to="./">Home</Link>  
           <Link to="./Image">Analyse</Link>  
           <Link to="./TextEditor">Convertor</Link>
           <a href="#contact">Contact</a>
