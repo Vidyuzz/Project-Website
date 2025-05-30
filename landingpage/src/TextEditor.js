@@ -16,7 +16,7 @@ const TextEditor = () => {
     const fetchFonts = async () => {
       try {
         const res = await fetch(
-          "https://www.googleapis.com/webfonts/v1/webfonts?sort=popularity&key=AIzaSyA4oDrDekV7N1uDjyW9daSeHP_PoB--jmk"
+          "--"
         );
         const data = await res.json();
         const fontNames = data.items.map((item) => item.family);
